@@ -58,9 +58,9 @@ verify_authentication(identity_client)
 
 
 # Set your Oracle Cloud Object Storage details
-namespace = "your_namespace"
-bucket_name = "your_bucket_name"
-object_name = "your_data.json"
+namespace = "axwknapzxq9r"
+bucket_name = "zhuoli-test-oct10-2024"
+object_name = "cities.csv"
 
 try:
     # Get the object

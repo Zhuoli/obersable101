@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "frontend-service.fullname" . }}
+  labels:
+    app: {{ include "frontend-service.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "frontend-service.name" . }}
+  template:
+    metadata:
+      annotations:
+        ad.datadoghq.com/{{ .Chart.Name }}.logs: |
+          [
+            {
+              "source": "typescript",
+              "service": "{{ .Values.global.serviceName }}-{{ .Values.global.environment }}"
+            }
+          ]
+      labels:
+        app: {{ include "frontend-service.name" . }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            {{- range .Values.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}

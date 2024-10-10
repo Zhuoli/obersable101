@@ -1,0 +1,21 @@
+replicaCount: 3
+
+image:
+  repository: 905418017087.dkr.ecr.us-west-2.amazonaws.com/cornerstone-frontend
+  tag: e4a43d6137ce456a7db4e6d3792e7cc19080988e                
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 80
+
+serviceAccount:
+  create: true
+  name: ""
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+autoscaling:
+  enabled: false

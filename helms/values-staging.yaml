@@ -1,0 +1,43 @@
+global:
+  serviceName: frontend
+  environment: staging
+env:
+  - name: CORNERSTONE_ENVIRONMENT
+    value: "staging"
+  - name: AUTH0_AUDIENCE
+    value: "https://cornerstone-chat.us.auth0.com/api/v2/"
+  - name: REACT_APP_API_ROOT
+    value: "https://staging.cornerstone.chat/api/"
+  - name: REACT_APP_API_ROOT_V2
+    value: "https://staging-api.cornerstone.chat/api/"
+  - name: REACT_APP_WSS
+    value: "https://staging.cornerstone.chat/stream"
+  - name: REACT_APP_FILTER_MAILS
+    value: "no-reply@shopify.com,no-reply@accounts.google.com,noreply-play-console@google.com,noreply-play-console@google.com,no-reply@youtube.com,marketing@email.shopify.com,no-reply@accounts.google.com,no-reply@amazonaws.com,noreply-play-console@google.com,support@optimonk.com,no_reply@email.apple.com,aws-marketing-email-replies@amazon.com,marketing@email.shopify.com,msn@email2.microsoft.com,support@emojobike.com,no-reply@mailer.shopify.com,msn@email2.microsoft.com,support@emojobike.com"
+  - name: REACT_APP_SHOPIFY_MAILS
+    value: "mailer@shopify.com"
+  - name: REACT_APP_AUTH_DOMAIN
+    value: "cornerstone-chat.us.auth0.com"
+  - name: REACT_APP_AUTH_ID
+    value: "ktyi7kjoLNrLxXVIZRoRChQzwvjZDnTO"
+  - name: REACT_APP_AUTH_REDIRECT
+    value: "http://cornerstone.chat"
+  - name: REACT_APP_FB_CONFIG_ID
+    value: "961492518812495"
+  - name: REACT_APP_FB_ID
+    value: "351400794505579"
+ingress:
+  enabled: true
+  className: alb
+  certificateArn: "arn:aws:acm:us-west-2:905418017087:certificate/dc5b6779-0889-4e77-b70f-0eb973beb64b"
+  hosts:
+    - host: "staging.cornerstone.chat"
+      paths:
+        - path: /*
+          pathType: ImplementationSpecific
+    - host: "k8s-frontend-frontend-cfe02951fe-396675845.us-west-2.elb.amazonaws.com"
+      paths:
+        - path: /*
+          pathType: ImplementationSpecific
+albController:
+  serviceAccountName: aws-load-balancer-controller
