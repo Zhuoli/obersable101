@@ -36,7 +36,7 @@ def verify_authentication(identity_client):
     """
     try:
         # Get user details to verify that authentication is successful
-        user = identity_client.get_user(identity_client.config["user"]).data
+        user = identity_client.get_user(identity_client.base_client.signer.get_user_id()).data
         print(f"Authentication verified successfully for user: {user.description} (OCID: {user.id})")
     except Exception as auth_error:
         sys.stderr.write(f"Authentication verification failed: {str(auth_error)}\n")
@@ -46,7 +46,7 @@ def verify_authentication(identity_client):
 object_storage, config = get_object_storage_client()
 
 # Initialize the Identity client for authentication verification
-identity_client = IdentityClient(config) if config else IdentityClient(signer=object_storage.base_client.signer)
+identity_client = IdentityClient(config=config) if config else IdentityClient(config={}, signer=object_storage.base_client.signer)
 
 # Verify the authentication before proceeding with the object retrieval
 verify_authentication(identity_client)
