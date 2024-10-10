@@ -5,6 +5,7 @@ import oci
 from oci.object_storage import ObjectStorageClient
 from oci.config import from_file
 from oci.identity import IdentityClient
+from oci.exceptions import ServiceError
 
 def get_object_storage_client():
     """
@@ -31,15 +32,19 @@ def get_object_storage_client():
         
 def verify_authentication(identity_client):
     """
-    Verify the authentication by retrieving the user's own details using the IdentityClient.
+    Verify the authentication by listing available regions in OCI.
     This ensures that the client is authenticated and has the necessary permissions.
     """
     try:
-        # Get user details to verify that authentication is successful
-        user = identity_client.get_user(identity_client.base_client.signer.get_user_id()).data
-        print(f"Authentication verified successfully for user: {user.description} (OCID: {user.id})")
-    except Exception as auth_error:
-        sys.stderr.write(f"Authentication verification failed: {str(auth_error)}\n")
+        # List regions to verify that authentication is successful
+        regions = identity_client.list_regions().data
+        region_names = [region.name for region in regions]
+        print(f"Authentication verified successfully. Available regions: {', '.join(region_names)}")
+    except ServiceError as se:
+        sys.stderr.write(f"Authentication verification failed: {str(se)}\n")
+        sys.exit(1)
+    except Exception as e:
+        sys.stderr.write(f"Unexpected error during authentication verification: {str(e)}\n")
         sys.exit(1)
 
 # Initialize the Object Storage client and configuration
