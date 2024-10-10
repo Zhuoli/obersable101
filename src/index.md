@@ -63,7 +63,7 @@ Here are some ideas of things you could try…
     Ask for help, or share your work or ideas, on our <a href="https://github.com/observablehq/framework/discussions">GitHub discussions</a>.
   </div>
   <div class="card">
-    Visit <a href="https://github.com/observablehq/framework">Framework on GitHub</a> and give us a star. Or file an issue if you’ve found a bug!
+    Visit <a href="https://github.com/observablehq/framework">Framework on GitHub</a> and give us a star. Or file an issue if you've found a bug!
   </div>
 </div>
 
@@ -130,4 +130,22 @@ ${
     place: f.properties.place,
     time: new Date(f.properties.time).toLocaleString()
   })))
+}
+
+---
+
+## Oracle Cloud Object Storage Data
+
+Here's the data fetched from Oracle Cloud Object Storage using our Python data loader:
+
+```js
+const oracleData = FileAttachment("data/oracle_data.json").json();
+
+// Now you can use the oracleData in your visualizations or analysis
+console.log(oracleData);
+```
+
+${
+  // Display the Oracle data in a table
+  Inputs.table(oracleData)
 }
