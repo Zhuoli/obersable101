@@ -4,27 +4,53 @@ import sys
 import oci
 from oci.object_storage import ObjectStorageClient
 from oci.config import from_file
-from oci.auth import signers
+from oci.identity import IdentityClient
 
 def get_object_storage_client():
-    # Try to load the Oracle Cloud Infrastructure configuration
+    """
+    Initialize and return an Object Storage client, trying config file first and then
+    falling back to instance principal authentication if config is not available.
+    """
     try:
-        config = from_file()  # Assumes you have a config file at ~/.oci/config
-        return ObjectStorageClient(config)
+        # Attempt to load the Oracle Cloud Infrastructure configuration from ~/.oci/config
+        config = from_file(profile_name="default")  # Assumes you have a config file at ~/.oci/config
+        print("Authenticated using config file.")
+        return ObjectStorageClient(config), config
     except Exception as config_error:
         print(f"Config file authentication failed: {str(config_error)}")
         print("Attempting instance principal authentication...")
 
-    # If config fails, try instance principal authentication
+    # Try to authenticate using instance principal if config file authentication fails
     try:
         signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-        return ObjectStorageClient(config={}, signer=signer)
+        print("Authenticated using instance principal.")
+        return ObjectStorageClient(config={}, signer=signer), {}
     except Exception as ip_error:
         sys.stderr.write(f"Error creating instance principal signer: {str(ip_error)}\n")
         sys.exit(1)
+        
+def verify_authentication(identity_client):
+    """
+    Verify the authentication by retrieving the user's own details using the IdentityClient.
+    This ensures that the client is authenticated and has the necessary permissions.
+    """
+    try:
+        # Get user details to verify that authentication is successful
+        user = identity_client.get_user(identity_client.config["user"]).data
+        print(f"Authentication verified successfully for user: {user.description} (OCID: {user.id})")
+    except Exception as auth_error:
+        sys.stderr.write(f"Authentication verification failed: {str(auth_error)}\n")
+        sys.exit(1)
 
-# Initialize the Object Storage client
-object_storage = get_object_storage_client()
+# Initialize the Object Storage client and configuration
+object_storage, config = get_object_storage_client()
+
+# Initialize the Identity client for authentication verification
+identity_client = IdentityClient(config) if config else IdentityClient(signer=object_storage.base_client.signer)
+
+# Verify the authentication before proceeding with the object retrieval
+verify_authentication(identity_client)
+
 
 # Set your Oracle Cloud Object Storage details
 namespace = "your_namespace"
