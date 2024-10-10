@@ -109,3 +109,25 @@ Here are some ideas of things you could try…
 }
 
 </style>
+
+---
+
+## Earthquake Data
+
+Here's the earthquake data fetched using our Python data loader:
+
+```js
+const quakes = FileAttachment("data/quakes.json").json();
+
+// Now you can use the quakes data in your visualizations or analysis
+console.log(quakes);
+```
+
+${
+  // Display the earthquake data in a table
+  Inputs.table(quakes.features.map(f => ({
+    magnitude: f.properties.mag,
+    place: f.properties.place,
+    time: new Date(f.properties.time).toLocaleString()
+  })))
+}
