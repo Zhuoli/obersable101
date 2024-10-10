@@ -4,12 +4,27 @@ import sys
 import oci
 from oci.object_storage import ObjectStorageClient
 from oci.config import from_file
+from oci.auth import signers
 
-# Load the Oracle Cloud Infrastructure configuration
-config = from_file()  # Assumes you have a config file at ~/.oci/config
+def get_object_storage_client():
+    # Try to load the Oracle Cloud Infrastructure configuration
+    try:
+        config = from_file()  # Assumes you have a config file at ~/.oci/config
+        return ObjectStorageClient(config)
+    except Exception as config_error:
+        print(f"Config file authentication failed: {str(config_error)}")
+        print("Attempting instance principal authentication...")
+
+    # If config fails, try instance principal authentication
+    try:
+        signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
+        return ObjectStorageClient(config={}, signer=signer)
+    except Exception as ip_error:
+        sys.stderr.write(f"Error creating instance principal signer: {str(ip_error)}\n")
+        sys.exit(1)
 
 # Initialize the Object Storage client
-object_storage = ObjectStorageClient(config)
+object_storage = get_object_storage_client()
 
 # Set your Oracle Cloud Object Storage details
 namespace = "your_namespace"
